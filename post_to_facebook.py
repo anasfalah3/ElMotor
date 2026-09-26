@@ -51,6 +51,40 @@ def fetch_photo_url(search_term, pexels_api_key):
         return None
 
 
+def resolve_page_token(page_id, access_token):
+    """Return a Page access token for page_id.
+
+    Posting to a Page with a *user* token fails with a misleading
+    "(#200) publish_actions ... deprecated" error. If the given token turns out
+    to be a user token, exchange it for the Page token via GET /{page_id}.
+    """
+    base = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
+    resp = requests.get(f"{base}/me", params={"fields": "id", "access_token": access_token}, timeout=20)
+    if resp.status_code != 200:
+        print(f"Facebook API error checking token ({resp.status_code}): {resp.text}")
+        resp.raise_for_status()
+    if resp.json().get("id") == str(page_id):
+        return access_token  # already a Page token
+
+    print(
+        "Warning: FB_PAGE_ACCESS_TOKEN is a USER token, not a Page token. "
+        "Trying to fetch the Page token from it. Replace the secret with the Page "
+        "token from GET /me/accounts (see README step 2)."
+    )
+    resp = requests.get(
+        f"{base}/{page_id}", params={"fields": "access_token", "access_token": access_token}, timeout=20
+    )
+    page_token = resp.json().get("access_token") if resp.status_code == 200 else None
+    if not page_token:
+        print(
+            f"Error: could not get a Page token for page {page_id} ({resp.status_code}): {resp.text}\n"
+            "Make sure the user token has pages_manage_posts + pages_read_engagement "
+            "(and pages_show_list), and that you are an admin of this Page."
+        )
+        sys.exit(1)
+    return page_token
+
+
 def post_to_facebook(page_id, access_token, message, photo_url=None):
     if photo_url:
         endpoint = f"https://graph.facebook.com/{GRAPH_API_VERSION}/{page_id}/photos"
@@ -74,6 +108,8 @@ def main():
     if not page_id or not access_token:
         print("Error: FB_PAGE_ID and FB_PAGE_ACCESS_TOKEN must be set as environment variables / secrets.")
         sys.exit(1)
+
+    access_token = resolve_page_token(page_id, access_token)
 
     caption = load_random_caption()
     photo_url = fetch_photo_url(caption["search_term"], pexels_api_key)
