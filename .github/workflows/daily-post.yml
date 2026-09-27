@@ -2,7 +2,9 @@ name: Daily Facebook Post
 
 on:
   schedule:
-    # 18:00 UTC = 19:00 Morocco time (GMT+1). Adjust as you like.
+    # 3 posts a day. Times are UTC; Morocco is GMT+0.
+    - cron: "0 10 * * *"
+    - cron: "0 14 * * *"
     - cron: "0 18 * * *"
   workflow_dispatch: {}  # lets you trigger it manually from the Actions tab to test
 

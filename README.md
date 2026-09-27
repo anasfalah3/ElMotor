@@ -1,12 +1,12 @@
 # Facebook Motorcycle Page — Daily Auto-Poster (Darija)
 
-Posts one motorcycle-themed caption (Darija) + a matching photo to your Facebook Page, once a day, for free, using GitHub Actions.
+Posts one motorcycle-themed caption (Darija) + a matching photo to your Facebook Page, 3 times a day, for free, using GitHub Actions.
 
 ## Files
 - `captions.json` — the caption bank. Add, remove, or edit lines anytime (keep the JSON format: `text` + `search_term`).
 - `post_to_facebook.py` — picks a random caption, fetches a matching photo from Pexels (if configured), and posts to your Page.
 - `requirements.txt` — Python dependencies.
-- `.github/workflows/daily-post.yml` — the schedule that runs the script daily.
+- `.github/workflows/daily-post.yml` — the schedule that runs the script 3 times a day.
 
 ## Setup
 
@@ -38,7 +38,7 @@ In the repo: **Settings → Secrets and variables → Actions → New repository
 Go to the **Actions** tab → "Daily Facebook Post" → "Run workflow" to trigger it manually and confirm it posts correctly before waiting for the schedule.
 
 ## Adjusting the schedule
-Edit the `cron` line in `.github/workflows/daily-post.yml`. Cron times are in UTC — Morocco is UTC+1 year-round (no DST since 2018, aside from a brief Ramadan shift some years).
+Edit the `cron` lines in `.github/workflows/daily-post.yml`. Cron times are in UTC — Morocco is UTC+0 year-round (no DST since 2018, aside from a brief Ramadan shift some years).
 
 ## Adding more content
 Just add more objects to `captions.json` in the same `{"text": "...", "search_term": "..."}` format. The `search_term` should be in English — it's used to search Pexels for a matching photo.
